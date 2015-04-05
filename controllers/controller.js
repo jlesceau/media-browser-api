@@ -1,7 +1,8 @@
-var controller = {};
+var tree = require('../data/tree.js'),
+    controller = {};
 
 controller.getSeries = function() {
-  return [];
+  return tree.get('series');
 };
 controller.getSerie = function(serie_id) {
   return {};

@@ -11,8 +11,6 @@ fs.readdirSync(config.directory).forEach(function(file) {
   classify(tree, file);
 });
 
-console.log(tree.get());
-
 server = express();
 
 routes(server);

@@ -6,25 +6,25 @@ function isSerie(path) {
   if(path.match(/(.+)s[0-9]+e[0-9]+/i))
     serie = {
       title: /(.+)s[0-9]+e[0-9]+/i.exec(path)[1],
-      season: /(.+)s[0-9]+e[0-9]+/i.exec(path)[2],
-      episode: /(.+)s[0-9]+e[0-9]+/i.exec(path)[3]
+      season: /s([0-9]+)e[0-9]+/i.exec(path)[1],
+      episode: /s[0-9]+e([0-9]+)/i.exec(path)[1]
     };
   else if(path.match(/(.+)\.[0-9]+x[0-9]+/i))
     serie = {
       title: /(.+)\.[0-9]+x[0-9]+/i.exec(path)[1],
-      season: /(.+)\.[0-9]+x[0-9]+/i.exec(path)[2],
-      episode: /(.+)\.[0-9]+x[0-9]+/i.exec(path)[3]
+      season: /\.([0-9]+)x[0-9]+/i.exec(path)[1],
+      episode: /\.[0-9]+x([0-9]+)/i.exec(path)[1]
     };
   else if(path.match(/(.+)s[0-9]{2,4}/i))
     serie = {
       title: /(.+)s[0-9]{2,4}/i.exec(path)[1],
-      season: /(.+)s[0-9]{2,4}/i.exec(path)[2],
+      season: /s([0-9]{2,4})/i.exec(path)[1],
       episode: 0
     };
   else if(path.match(/(.+)season\.[0-9]{2,4}/i))
     serie = {
       title: /(.+)season\.[0-9]{2,4}/i.exec(path)[1],
-      season: /(.+)season\.[0-9]{2,4}/i.exec(path)[2],
+      season: /season\.([0-9]{2,4})/i.exec(path)[1],
       episode: 0
     };
 
