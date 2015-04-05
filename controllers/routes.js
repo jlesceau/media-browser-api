@@ -20,6 +20,7 @@ module.exports = function(server) {
       )
     );
   });
+
   server.get('/movies', function (req, res) {
     res.send(controller.getMovies());
   });

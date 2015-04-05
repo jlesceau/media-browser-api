@@ -8,16 +8,26 @@ controller.getSerie = function(serie_id) {
   return tree.get('series', { title: serie_id });
 };
 controller.getSeason = function(serie_id, season_id) {
-  return {};
+  return tree.get('series',
+      { title: serie_id },
+      'seasons',
+      { number: parseInt(season_id) }
+    );
 };
 controller.getEpisode = function(serie_id, season_id, episode_id) {
-  return {};
+  return tree.get('series',
+      { title: serie_id },
+      'seasons',
+      { number: parseInt(season_id) },
+      'episodes',
+      { number: parseInt(episode_id) }
+    );
 };
 controller.getMovies = function() {
-  return [];
+  return tree.get('movies');
 };
 controller.getMovie = function(movie_id) {
-  return {};
+  return tree.get('movies', { title: movie_id });
 };
 
 module.exports = controller;

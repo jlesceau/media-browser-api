@@ -7,8 +7,10 @@ var express = require('express'),
     server;
 
 // Init the data tree
+tree.set('topDirectory', config.directory);
+tree.commit();
 fs.readdirSync(config.directory).forEach(function(file) {
-  classify(tree, file);
+  classify(file);
 });
 
 server = express();
