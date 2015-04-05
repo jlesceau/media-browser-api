@@ -5,7 +5,7 @@ controller.getSeries = function() {
   return tree.get('series');
 };
 controller.getSerie = function(serie_id) {
-  return {};
+  return tree.get('series', { title: serie_id });
 };
 controller.getSeason = function(serie_id, season_id) {
   return {};
