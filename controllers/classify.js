@@ -114,21 +114,38 @@ module.exports = function(path) {
       }, null);
 
       if(objSeason !== null) {
-        objSeason.episodes.push({
-          number: serie.episode,
-          path: path,
-          pathToVideo: serie.pathToVideo,
-          size: serie.size
-        });
+        var objEpisode = objSeason.episodes.reduce(function(a,b) {
+          return (b.number === serie.episode) ? b : a;
+        }, null);
+
+        if(objEpisode !== null) {
+          objEpisode.files.push({
+            path: path,
+            pathToVideo: serie.pathToVideo,
+            size: serie.size
+          });
+        }
+        else {
+          objSeason.episodes.push({
+            number: serie.episode,
+            files: [{
+              path: path,
+              pathToVideo: serie.pathToVideo,
+              size: serie.size
+            }]
+          });
+        }
       }
       else {
         objSerie.seasons.push({
           number: serie.season,
           episodes: [{
             number: serie.episode,
-            path: path,
-            pathToVideo: serie.pathToVideo,
-            size: serie.size
+            files: [{
+              path: path,
+              pathToVideo: serie.pathToVideo,
+              size: serie.size
+            }]
           }]
         });
       }
@@ -140,9 +157,11 @@ module.exports = function(path) {
           number: serie.season,
           episodes: [{
             number: serie.episode,
-            path: path,
-            pathToVideo: serie.pathToVideo,
-            size: serie.size
+            files: [{
+              path: path,
+              pathToVideo: serie.pathToVideo,
+              size: serie.size
+            }]
           }]
         }]
       });
