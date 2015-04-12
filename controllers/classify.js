@@ -1,10 +1,10 @@
 var fs = require('fs'),
-    util = require('util'),
     tree = require('../data/tree.js');
 
 function isSerie(path) {
   var serie = false;
 
+  // S01E01
   if(path.match(/(.+)s[0-9]+e[0-9]+/i))
     serie = {
       title: /(.+)s[0-9]+e[0-9]+/i.exec(path)[1],
@@ -12,6 +12,7 @@ function isSerie(path) {
       episode: /s[0-9]+e([0-9]+)/i.exec(path)[1],
       size: size(path)
     };
+  // 1x01
   else if(path.match(/(.+)\.[0-9]+x[0-9]+/i))
     serie = {
       title: /(.+)\.[0-9]+x[0-9]+/i.exec(path)[1],
@@ -19,6 +20,7 @@ function isSerie(path) {
       episode: /\.[0-9]+x([0-9]+)/i.exec(path)[1],
       size: size(path)
     };
+  // S01 || S2014
   else if(path.match(/(.+)s[0-9]{2,4}/i))
     serie = {
       title: /(.+)s[0-9]{2,4}/i.exec(path)[1],
@@ -26,6 +28,7 @@ function isSerie(path) {
       episode: 0,
       size: size(path)
     };
+  // Season.01 || Season.2014
   else if(path.match(/(.+)season\.[0-9]{2,4}/i))
     serie = {
       title: /(.+)season\.[0-9]{2,4}/i.exec(path)[1],
@@ -48,7 +51,14 @@ function isMovie(path) {
 }
 
 function size(path) {
-  return util.inspect(fs.statSync(tree.get('topDirectory') + '/' + path)).size;
+  var stats = fs.statSync(tree.get('topDirectory') + '/' + path);
+  if(stats.isDirectory())
+    return fs.readdirSync(tree.get('topDirectory') + '/' + path)
+        .reduce(function(sum, file) {
+          return sum + size(path + '/' + file);
+        }, 0);
+  else
+    return stats.size;
 }
 
 function cleanTitle(title) {
