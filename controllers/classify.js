@@ -30,14 +30,18 @@ function isSerie(path) {
     };
 
   if(serie) {
-    serie.title = cleanTitle(serie.title);
-    serie.season = parseInt(serie.season);
-    serie.episode = parseInt(serie.episode);
-    serie.size = size(path);
     serie.pathToVideo = findVideo(path);
-    serie.definition = serie.pathToVideo ?
-                          findDefinition(serie.pathToVideo) :
-                          findDefinition(path);
+    if(serie.pathToVideo) {
+      serie.title = cleanTitle(serie.title);
+      serie.season = parseInt(serie.season);
+      serie.episode = parseInt(serie.episode);
+      serie.size = size(path);
+      serie.extension = /.*\.([^.]+)$/.exec(serie.pathToVideo)[1];
+      serie.definition = findDefinition(serie.pathToVideo);
+      serie.codec = findCodec(serie.pathToVideo);
+    }
+    else
+      serie = false;
   }
 
   return serie;
@@ -112,6 +116,17 @@ function findDefinition(path) {
     return 'sd';
 }
 
+function findCodec(path) {
+  if(path.match(/xvid/i))
+    return 'XviD';
+  else if(path.match(/[x264|h264]/i))
+    return 'x264';
+  else if(path.match(/[x265|h265|HEVC]/i))
+    return 'x265';
+  else
+    return 'Unknown';
+}
+
 module.exports = function(path) {
   var serie = isSerie(path);
 
@@ -135,7 +150,9 @@ module.exports = function(path) {
             path: path,
             pathToVideo: serie.pathToVideo,
             size: serie.size,
-            definition: serie.definition
+            definition: serie.definition,
+            extension: serie.extension,
+            codec: serie.codec
           });
         }
         else {
@@ -145,7 +162,9 @@ module.exports = function(path) {
               path: path,
               pathToVideo: serie.pathToVideo,
               size: serie.size,
-              definition: serie.definition
+              definition: serie.definition,
+              extension: serie.extension,
+              codec: serie.codec
             }]
           });
         }
@@ -159,7 +178,9 @@ module.exports = function(path) {
               path: path,
               pathToVideo: serie.pathToVideo,
               size: serie.size,
-              definition: serie.definition
+              definition: serie.definition,
+              extension: serie.extension,
+              codec: serie.codec
             }]
           }]
         });
@@ -176,7 +197,9 @@ module.exports = function(path) {
               path: path,
               pathToVideo: serie.pathToVideo,
               size: serie.size,
-              definition: serie.definition
+              definition: serie.definition,
+              extension: serie.extension,
+              codec: serie.codec
             }]
           }]
         }]
