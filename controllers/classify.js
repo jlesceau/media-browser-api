@@ -1,5 +1,15 @@
 var fs = require('fs'),
-    tree = require('../data/tree.js');
+    tree = require('../data/tree.js'),
+    videoExt = [
+      'avi',
+      'wmv',
+      'mkv',
+      'mka',
+      'mks',
+      'mp4',
+      'mov',
+      'flv'
+    ];
 
 function isSerie(path) {
   var serie = false;
@@ -9,41 +19,41 @@ function isSerie(path) {
     serie = {
       title: /(.+)s[0-9]+e[0-9]+/i.exec(path)[1],
       season: /s([0-9]+)e[0-9]+/i.exec(path)[1],
-      episode: /s[0-9]+e([0-9]+)/i.exec(path)[1],
-      size: size(path)
+      episode: /s[0-9]+e([0-9]+)/i.exec(path)[1]
     };
   // 1x01
   else if(path.match(/(.+)\.[0-9]+x[0-9]+/i))
     serie = {
       title: /(.+)\.[0-9]+x[0-9]+/i.exec(path)[1],
       season: /\.([0-9]+)x[0-9]+/i.exec(path)[1],
-      episode: /\.[0-9]+x([0-9]+)/i.exec(path)[1],
-      size: size(path)
-    };
-  // S01 || S2014
-  else if(path.match(/(.+)s[0-9]{2,4}/i))
-    serie = {
-      title: /(.+)s[0-9]{2,4}/i.exec(path)[1],
-      season: /s([0-9]{2,4})/i.exec(path)[1],
-      episode: 0,
-      size: size(path)
-    };
-  // Season.01 || Season.2014
-  else if(path.match(/(.+)season\.[0-9]{2,4}/i))
-    serie = {
-      title: /(.+)season\.[0-9]{2,4}/i.exec(path)[1],
-      season: /season\.([0-9]{2,4})/i.exec(path)[1],
-      episode: 0,
-      size: size(path)
+      episode: /\.[0-9]+x([0-9]+)/i.exec(path)[1]
     };
 
   if(serie) {
     serie.title = cleanTitle(serie.title);
     serie.season = parseInt(serie.season);
     serie.episode = parseInt(serie.episode);
+    serie.size = size(path);
+    serie.pathToVideo = findVideo(path);
   }
 
   return serie;
+}
+
+function isSeason(path) {
+
+  // S01 || S2014
+  if(path.match(/(.+)s[0-9]{2,4}/i))
+    serie = {
+      title: /(.+)s[0-9]{2,4}/i.exec(path)[1],
+      season: /s([0-9]{2,4})/i.exec(path)[1],
+    };
+  // Season.01 || Season.2014
+  else if(path.match(/(.+)season\.[0-9]{2,4}/i))
+    serie = {
+      title: /(.+)season\.[0-9]{2,4}/i.exec(path)[1],
+      season: /season\.([0-9]{2,4})/i.exec(path)[1],
+    };
 }
 
 function isMovie(path) {
@@ -73,6 +83,23 @@ function cleanTitle(title) {
       .join(' ');
 }
 
+function findVideo(path) {
+  if(fs.statSync(tree.get('topDirectory') + '/' + path).isDirectory())
+    return fs.readdirSync(tree.get('topDirectory') + '/' + path)
+        .reduce(function(prev, file) {
+          var videoPath = findVideo(path + '/' + file);
+          return videoPath ? videoPath : prev;
+        }, false);
+  else {
+    if(videoExt.some(function(ext) {
+          return ext === /.*\.([^.]+)$/.exec(path)[1];
+        }))
+      return path;
+    else
+      return false;
+  }
+}
+
 module.exports = function(path) {
   var serie = isSerie(path);
 
@@ -90,6 +117,7 @@ module.exports = function(path) {
         objSeason.episodes.push({
           number: serie.episode,
           path: path,
+          pathToVideo: serie.pathToVideo,
           size: serie.size
         });
       }
@@ -99,6 +127,7 @@ module.exports = function(path) {
           episodes: [{
             number: serie.episode,
             path: path,
+            pathToVideo: serie.pathToVideo,
             size: serie.size
           }]
         });
@@ -112,6 +141,7 @@ module.exports = function(path) {
           episodes: [{
             number: serie.episode,
             path: path,
+            pathToVideo: serie.pathToVideo,
             size: serie.size
           }]
         }]
