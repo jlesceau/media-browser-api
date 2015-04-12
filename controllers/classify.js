@@ -35,6 +35,9 @@ function isSerie(path) {
     serie.episode = parseInt(serie.episode);
     serie.size = size(path);
     serie.pathToVideo = findVideo(path);
+    serie.definition = serie.pathToVideo ?
+                          findDefinition(serie.pathToVideo) :
+                          findDefinition(path);
   }
 
   return serie;
@@ -100,6 +103,15 @@ function findVideo(path) {
   }
 }
 
+function findDefinition(path) {
+  if(path.match(/720p/i))
+    return 'hd';
+  else if(path.match(/1080p/i))
+    return 'fhd';
+  else
+    return 'sd';
+}
+
 module.exports = function(path) {
   var serie = isSerie(path);
 
@@ -122,7 +134,8 @@ module.exports = function(path) {
           objEpisode.files.push({
             path: path,
             pathToVideo: serie.pathToVideo,
-            size: serie.size
+            size: serie.size,
+            definition: serie.definition
           });
         }
         else {
@@ -131,7 +144,8 @@ module.exports = function(path) {
             files: [{
               path: path,
               pathToVideo: serie.pathToVideo,
-              size: serie.size
+              size: serie.size,
+              definition: serie.definition
             }]
           });
         }
@@ -144,7 +158,8 @@ module.exports = function(path) {
             files: [{
               path: path,
               pathToVideo: serie.pathToVideo,
-              size: serie.size
+              size: serie.size,
+              definition: serie.definition
             }]
           }]
         });
@@ -160,7 +175,8 @@ module.exports = function(path) {
             files: [{
               path: path,
               pathToVideo: serie.pathToVideo,
-              size: serie.size
+              size: serie.size,
+              definition: serie.definition
             }]
           }]
         }]
