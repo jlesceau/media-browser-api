@@ -2,11 +2,18 @@ var tree = require('../data/tree.js'),
     controller = {};
 
 controller.getSeries = function() {
-  return tree.get('series');
+  return tree.get('series').map(function(serie) {
+    return {
+      title: serie.title,
+      numSeasons: serie.seasons.length
+    };
+  });
 };
+
 controller.getSerie = function(serie_id) {
   return tree.get('series', { title: serie_id });
 };
+
 controller.getSeason = function(serie_id, season_id) {
   return tree.get('series',
       { title: serie_id },
