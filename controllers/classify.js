@@ -35,7 +35,7 @@ function isSerie(path) {
     };
 
   if(serie) {
-    serie.title = serie.title.replace(/\./g, ' ').trim().toLowerCase();
+    serie.title = cleanTitle(serie.title);
     serie.season = parseInt(serie.season);
     serie.episode = parseInt(serie.episode);
   }
@@ -49,6 +49,18 @@ function isMovie(path) {
 
 function size(path) {
   return util.inspect(fs.statSync(tree.get('topDirectory') + '/' + path)).size;
+}
+
+function cleanTitle(title) {
+  return title
+      .replace(/[\.|_]/g, ' ')
+      .trim()
+      .toLowerCase()
+      .split(' ')
+      .map(function(w) {
+        return w.charAt(0).toUpperCase() + w.substr(1);
+      })
+      .join(' ');
 }
 
 module.exports = function(path) {
