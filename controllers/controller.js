@@ -38,6 +38,20 @@ controller.getEpisode = function(serie_id, season_id, episode_id) {
       { number: parseInt(episode_id) }
     );
 };
+controller.getEpisodeFile = function(serie_id, season_id, episode_id, file_id) {
+  return tree.get('topDirectory') +
+    '/' +
+    tree.get('series',
+      { title: serie_id },
+      'seasons',
+      { number: parseInt(season_id) },
+      'episodes',
+      { number: parseInt(episode_id) },
+      'files',
+      file_id,
+      'pathToVideo'
+    );
+};
 controller.getMovies = function() {
   return tree.get('movies');
 };
