@@ -2,12 +2,7 @@ var tree = require('../data/tree.js'),
     controller = {};
 
 controller.getSeries = function() {
-  return tree.get('series').map(function(serie) {
-    return {
-      title: serie.title,
-      numSeasons: serie.seasons.length
-    };
-  });
+  return tree.get('series');
 };
 
 controller.getSerie = function(serie_id) {
