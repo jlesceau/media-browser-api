@@ -1,5 +1,18 @@
 var tree = require('../data/tree.js'),
+    diskspace = require('diskspace'),
     controller = {};
+
+controller.getDisk = function(callback) {
+  diskspace.check(
+      tree.get('topDirectory'),
+      function (err, total, free, status) {
+        callback({
+          total: total,
+          free: free
+        });
+      }
+  );
+};
 
 controller.getSeries = function() {
   return tree.get('series');

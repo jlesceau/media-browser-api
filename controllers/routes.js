@@ -2,6 +2,12 @@ var express = require('express'),
     controller = require('./controller.js');
 
 module.exports = function(server) {
+  server.get('/disk', function (req, res) {
+    controller.getDisk(function(disk) {
+      res.send(disk);
+    });
+  });
+
   server.get('/series', function (req, res) {
     res.send(controller.getSeries());
   });
