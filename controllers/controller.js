@@ -1,6 +1,7 @@
 var fs = require('fs'),
     diskspace = require('diskspace'),
     tree = require('../data/tree.js'),
+    classify = require('../controllers/classify.js'),
     controller = {};
 
 function fail(res, err, message) {
@@ -34,6 +35,22 @@ controller.getDisk = function(req, res) {
         });
     }
   );
+};
+
+controller.resetTree = function() {
+  tree.set('series', []);
+  tree.set('movies', []);
+  tree.set('storage', []);
+  tree.commit();
+};
+
+controller.fillTree = function() {
+  controller.resetTree();
+  fs.readdir(tree.get('topDirectory'), function(err, files) {
+    files.forEach(function(file) {
+      classify(file);
+    });
+  });
 };
 
 // Series
@@ -96,7 +113,7 @@ controller.downloadEpisode = function(req, res) {
       'pathToVideo'
     )
   ))
-    res.download(tree.get('topDirectory') + '/' + episode);
+    res.download(tree.get('topDirectory') + episode);
   else
     fail(res, null, 'Episode not found');
 };
@@ -117,7 +134,7 @@ controller.streamEpisode = function (req, res) {
     )
   )) {
     res.setHeader('content-type', 'video/mp4');
-    fs.createReadStream(tree.get('topDirectory') + '/' + episode )
+    fs.createReadStream(tree.get('topDirectory') + episode )
       .pipe(res);
   }
   else

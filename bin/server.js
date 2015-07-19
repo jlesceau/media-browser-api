@@ -1,17 +1,36 @@
 var express = require('express'),
+    chokidar = require('chokidar'),
     config = require('../conf/config.json'),
     routes = require('../controllers/routes.js'),
-    classify = require('../controllers/classify.js'),
+    controller = require('../controllers/controller.js'),
     tree = require('../data/tree.js'),
-    fs = require('fs'),
+    watcher,
     server;
 
 // Init the data tree
-tree.set('topDirectory', config.directory);
+tree.set(
+  'topDirectory',
+  config.directory.match(/\/$/) ?
+    config.directory :
+    config.directory + '/'
+);
 tree.commit();
-fs.readdirSync(config.directory).forEach(function(file) {
-  classify(file);
+controller.fillTree();
+
+watcher = chokidar.watch(config.directory, {
+  ignored: /[\/\\]\./,
+  ignoreInitial: true
 });
+watcher
+  .on('add', function (path, stats) {
+    controller.fillTree();
+  })
+  .on('change', function (path, stats) {
+    controller.fillTree();
+  })
+  .on('unlink', function (path, stats) {
+    controller.fillTree();
+  });
 
 server = express();
 

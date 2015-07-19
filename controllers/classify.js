@@ -68,9 +68,9 @@ function isMovie(path) {
 }
 
 function size(path) {
-  var stats = fs.statSync(tree.get('topDirectory') + '/' + path);
+  var stats = fs.statSync(tree.get('topDirectory') + path);
   if(stats.isDirectory())
-    return fs.readdirSync(tree.get('topDirectory') + '/' + path)
+    return fs.readdirSync(tree.get('topDirectory') + path)
         .reduce(function(sum, file) {
           return sum + size(path + '/' + file);
         }, 0);
@@ -91,8 +91,8 @@ function cleanTitle(title) {
 }
 
 function findVideo(path) {
-  if(fs.statSync(tree.get('topDirectory') + '/' + path).isDirectory())
-    return fs.readdirSync(tree.get('topDirectory') + '/' + path)
+  if(fs.statSync(tree.get('topDirectory') + path).isDirectory())
+    return fs.readdirSync(tree.get('topDirectory') + path)
         .reduce(function(prev, file) {
           var videoPath = findVideo(path + '/' + file);
           return videoPath ? videoPath : prev;
