@@ -12,55 +12,70 @@ var fs = require('fs'),
     ];
 
 function isSerie(path) {
-  var serie = false;
+  var serie;
 
-  // S01E01
-  if(path.match(/(.+)s[0-9]+e[0-9]+/i))
-    serie = {
-      title: /(.+)s[0-9]+e[0-9]+/i.exec(path)[1],
-      season: /s([0-9]+)e[0-9]+/i.exec(path)[1],
-      episode: /s[0-9]+e([0-9]+)/i.exec(path)[1]
-    };
-  // 1x01
-  else if(path.match(/(.+)\.[0-9]+x[0-9]+/i))
-    serie = {
-      title: /(.+)\.[0-9]+x[0-9]+/i.exec(path)[1],
-      season: /\.([0-9]+)x[0-9]+/i.exec(path)[1],
-      episode: /\.[0-9]+x([0-9]+)/i.exec(path)[1]
-    };
+  if ((serie = matchEpisode(path)))
+    return [ serie ];
 
-  if(serie) {
-    serie.pathToVideo = findVideo(path);
-    if(serie.pathToVideo) {
-      serie.title = cleanTitle(serie.title);
-      serie.season = parseInt(serie.season);
-      serie.episode = parseInt(serie.episode);
-      serie.size = size(path);
-      serie.extension = /.*\.([^.]+)$/.exec(serie.pathToVideo)[1];
-      serie.definition = findDefinition(serie.pathToVideo);
-      serie.codec = findCodec(serie.pathToVideo);
-    }
-    else
-      serie = false;
-  }
+  else if ((serie = matchSeason(path)))
+    return serie;
 
-  return serie;
+  return false;
 }
 
-function isSeason(path) {
+function matchEpisode(path, parent) {
+  var episode = false,
+      match;
 
-  // S01 || S2014
-  if(path.match(/(.+)s[0-9]{2,4}/i))
-    serie = {
-      title: /(.+)s[0-9]{2,4}/i.exec(path)[1],
-      season: /s([0-9]{2,4})/i.exec(path)[1],
+  // S01E01
+  if ((match = /(.+)s([0-9]+)e([0-9]+)/i.exec(path)))
+    episode = {
+      title: cleanTitle(match[1]),
+      season: parseInt(match[2]),
+      episode: parseInt(match[3])
     };
-  // Season.01 || Season.2014
-  else if(path.match(/(.+)season\.[0-9]{2,4}/i))
-    serie = {
-      title: /(.+)season\.[0-9]{2,4}/i.exec(path)[1],
-      season: /season\.([0-9]{2,4})/i.exec(path)[1],
+  // 1x01
+  else if ((match = /(.+)\.[0-9]+x[0-9]+/i.exec(path)))
+    episode = {
+      title: cleanTitle(match[1]),
+      season: parseInt(match[2]),
+      episode: parseInt(match[3])
     };
+
+  if (episode) {
+    episode.pathToVideo = findVideo((parent || '') + path);
+
+    if (episode.pathToVideo) {
+      episode.size = size(episode.pathToVideo);
+      episode.extension = /.*\.([^.]+)$/.exec(episode.pathToVideo)[1];
+      episode.definition = findDefinition(episode.pathToVideo);
+      episode.codec = findCodec(episode.pathToVideo);
+    }
+  }
+
+  return episode;
+}
+
+function matchSeason(path) {
+  var episodes = [],
+      epi;
+
+  // S01 || S2014 || season.01 || season.2014
+  if ((
+    /(.+)s([0-9]{2,4})/i.exec(path) ||
+    /(.+)season\.([0-9]{2,4})/i.exec(path)) &&
+    fs.statSync(tree.get('topDirectory') + path).isDirectory()
+  )
+    fs.readdirSync(tree.get('topDirectory') + path).forEach(function(file) {
+      epi = matchEpisode(file, path + '/');
+      if (epi)
+        episodes.push(epi);
+    });
+
+  if (episodes.length)
+    return episodes;
+  else
+    return false;
 }
 
 function isMovie(path) {
@@ -69,7 +84,7 @@ function isMovie(path) {
 
 function size(path) {
   var stats = fs.statSync(tree.get('topDirectory') + path);
-  if(stats.isDirectory())
+  if (stats.isDirectory())
     return fs.readdirSync(tree.get('topDirectory') + path)
         .reduce(function(sum, file) {
           return sum + size(path + '/' + file);
@@ -80,27 +95,29 @@ function size(path) {
 
 function cleanTitle(title) {
   return title
-      .replace(/[\.|_]/g, ' ')
-      .trim()
-      .toLowerCase()
-      .split(' ')
-      .map(function(w) {
-        return w.charAt(0).toUpperCase() + w.substr(1);
-      })
-      .join(' ');
+    .replace(/[\.|_]/g, ' ')
+    .trim()
+    .toLowerCase()
+    .split(' ')
+    .map(function(w) {
+      return w.charAt(0).toUpperCase() + w.substr(1);
+    })
+    .join(' ');
 }
 
 function findVideo(path) {
-  if(fs.statSync(tree.get('topDirectory') + path).isDirectory())
+  if (fs.statSync(tree.get('topDirectory') + path).isDirectory())
     return fs.readdirSync(tree.get('topDirectory') + path)
         .reduce(function(prev, file) {
           var videoPath = findVideo(path + '/' + file);
           return videoPath ? videoPath : prev;
         }, false);
   else {
-    if(videoExt.some(function(ext) {
-          return ext === /.*\.([^.]+)$/.exec(path)[1];
-        }))
+    if (
+      videoExt.some(function(ext) {
+        return ext === /.*\.([^.]+)$/.exec(path)[1];
+      })
+    )
       return path;
     else
       return false;
@@ -108,105 +125,116 @@ function findVideo(path) {
 }
 
 function findDefinition(path) {
-  if(path.match(/720p/i))
+  if (path.match(/720p/i))
     return 'hd';
-  else if(path.match(/1080p/i))
+  else if (path.match(/1080p/i))
     return 'fhd';
   else
     return 'sd';
 }
 
 function findCodec(path) {
-  if(path.match(/xvid/i))
+  if (path.match(/xvid/i))
     return 'XviD';
-  else if(path.match(/[x264|h264]/i))
+  else if (path.match(/(x264|h264)/i))
     return 'x264';
-  else if(path.match(/[x265|h265|HEVC]/i))
+  else if (path.match(/(x265|h265|HEVC)/i))
     return 'x265';
   else
     return 'Unknown';
 }
 
 module.exports = function(path) {
-  var serie = isSerie(path);
+  var episodes,
+      movie;
 
-  if(serie) {
-    var objSerie = tree.get('series').reduce(function(a,b) {
-      return (b.title === serie.title) ? b : a;
-    }, null);
+  if ((episodes = isSerie(path))) {
+    var objSerie;
 
-    if(objSerie !== null) {
-      var objSeason = objSerie.seasons.reduce(function(a,b) {
-        return (b.number === serie.season) ? b : a;
+    episodes.forEach(function(serie) {
+      objSerie = tree.get('series').reduce(function(a,b) {
+        return (b.title === serie.title) ? b : a;
       }, null);
 
-      if(objSeason !== null) {
-        var objEpisode = objSeason.episodes.reduce(function(a,b) {
-          return (b.number === serie.episode) ? b : a;
+      // Existing serie
+      if (objSerie !== null) {
+        var objSeason = objSerie.seasons.reduce(function(a,b) {
+          return (b.number === serie.season) ? b : a;
         }, null);
 
-        if(objEpisode !== null) {
-          objEpisode.files.push({
-            path: path,
-            pathToVideo: serie.pathToVideo,
-            size: serie.size,
-            definition: serie.definition,
-            extension: serie.extension,
-            codec: serie.codec
-          });
-        }
-        else {
-          objSeason.episodes.push({
-            number: serie.episode,
-            files: [{
+        // Existing season
+        if (objSeason !== null) {
+          var objEpisode = objSeason.episodes.reduce(function(a,b) {
+            return (b.number === serie.episode) ? b : a;
+          }, null);
+
+          // Existing episode
+          if (objEpisode !== null) {
+            objEpisode.files.push({
               path: path,
               pathToVideo: serie.pathToVideo,
               size: serie.size,
               definition: serie.definition,
               extension: serie.extension,
               codec: serie.codec
+            });
+          }
+          // New episode
+          else {
+            objSeason.episodes.push({
+              number: serie.episode,
+              files: [{
+                path: path,
+                pathToVideo: serie.pathToVideo,
+                size: serie.size,
+                definition: serie.definition,
+                extension: serie.extension,
+                codec: serie.codec
+              }]
+            });
+          }
+        }
+        // New season
+        else {
+          objSerie.seasons.push({
+            number: serie.season,
+            episodes: [{
+              number: serie.episode,
+              files: [{
+                path: path,
+                pathToVideo: serie.pathToVideo,
+                size: serie.size,
+                definition: serie.definition,
+                extension: serie.extension,
+                codec: serie.codec
+              }]
             }]
           });
         }
       }
+      // New serie
       else {
-        objSerie.seasons.push({
-          number: serie.season,
-          episodes: [{
-            number: serie.episode,
-            files: [{
-              path: path,
-              pathToVideo: serie.pathToVideo,
-              size: serie.size,
-              definition: serie.definition,
-              extension: serie.extension,
-              codec: serie.codec
+        tree.get('series').push({
+          title: serie.title,
+          seasons: [{
+            number: serie.season,
+            episodes: [{
+              number: serie.episode,
+              files: [{
+                path: path,
+                pathToVideo: serie.pathToVideo,
+                size: serie.size,
+                definition: serie.definition,
+                extension: serie.extension,
+                codec: serie.codec
+              }]
             }]
           }]
         });
       }
-    }
-    else {
-      tree.get('series').push({
-        title: serie.title,
-        seasons: [{
-          number: serie.season,
-          episodes: [{
-            number: serie.episode,
-            files: [{
-              path: path,
-              pathToVideo: serie.pathToVideo,
-              size: serie.size,
-              definition: serie.definition,
-              extension: serie.extension,
-              codec: serie.codec
-            }]
-          }]
-        }]
-      });
-    }
+    });
   }
-  else if(isMovie(path))
+  else if (isMovie(path))
     tree.get('movies').push(path);
   else
     tree.get('storage').push(path);
