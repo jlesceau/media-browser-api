@@ -21,5 +21,7 @@ module.exports = function(server) {
 
   // Movies
   server.get('/movies', controller.getMovies);
-  server.get('/movies/:movie_id',  controller.getMovie);
+  server.get('/movies/:movie_id', controller.getMovie);
+  server.get('/movies/:movie_id/dl', controller.downloadMovie);
+  server.get('/movies/:movie_id/stream', controller.streamMovie);
 };

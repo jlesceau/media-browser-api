@@ -153,5 +153,36 @@ controller.getMovie = function(req, res) {
   else
     fail(res, null, 'Movie not found');
 };
+controller.downloadMovie = function(req, res) {
+  var movie;
+
+  if ((
+    movie = tree.get(
+      'movies',
+      { title: req.params.movie_id },
+      'pathToVideo'
+    )
+  ))
+    res.download(tree.get('topDirectory') + movie);
+  else
+    fail(res, null, 'Movie not found');
+};
+controller.streamMovie = function (req, res) {
+  var movie;
+
+  if ((
+    movie = tree.get(
+      'movies',
+      { title: req.params.movie_id },
+      'pathToVideo'
+    )
+  )) {
+    res.setHeader('content-type', 'video/mp4');
+    fs.createReadStream(tree.get('topDirectory') + movie )
+      .pipe(res);
+  }
+  else
+    fail(res, null, 'Movie not found');
+};
 
 module.exports = controller;
