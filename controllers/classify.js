@@ -79,7 +79,26 @@ function matchSeason(path) {
 }
 
 function isMovie(path) {
-  return false;
+  var movie = false,
+      pathToVideo,
+      match;
+
+  if (
+    (match = /(.+)([0-9]{4}).+(BluRay|BRRip|BDRip|DVDRip)/i.exec(path)) &&
+    (pathToVideo = findVideo(path))
+  )
+    movie = {
+      title: cleanTitle(match[1]),
+      year: parseInt(match[2]),
+      rip: match[3],
+      codec: findCodec(path),
+      definition: findDefinition(path),
+      pathToVideo: pathToVideo,
+      extension: /.*\.([^.]+)$/.exec(pathToVideo)[1],
+      size: size(pathToVideo)
+    };
+
+  return movie;
 }
 
 function size(path) {
@@ -234,8 +253,6 @@ module.exports = function(path) {
       }
     });
   }
-  else if (isMovie(path))
-    tree.get('movies').push(path);
-  else
-    tree.get('storage').push(path);
+  else if ((movie = isMovie(path)))
+    tree.get('movies').push(movie);
 };
