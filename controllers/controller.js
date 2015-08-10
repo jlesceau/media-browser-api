@@ -55,15 +55,17 @@ controller.fillTree = function() {
 
 // Series
 controller.getSeries = function(req, res) {
-  success(res, tree.get('series'));
-};
-controller.getSerie = function(req, res) {
-  var serie;
-
-  if ((serie = tree.get('series', { title: req.params.serie_id })))
-    success(res, serie);
-  else
-    fail(res, null, 'Series not found');
+  success(
+    res,
+    tree.get('series').map(function(serie) {
+      return {
+        title: serie.title,
+        seasons: serie.seasons.map(function(season) {
+          return season.number;
+        })
+      };
+    })
+  );
 };
 controller.getSeason = function(req, res) {
   var season;
@@ -79,23 +81,6 @@ controller.getSeason = function(req, res) {
     success(res, season);
   else
     fail(res, null, 'Season not found');
-};
-controller.getEpisode = function(req, res) {
-  var episode;
-
-  if ((
-    episode = tree.get(
-      'series',
-      { title: req.params.serie_id },
-      'seasons',
-      { number: parseInt(req.params.season_id) },
-      'episodes',
-      { number: parseInt(req.params.episode_id) }
-    )
-  ))
-    success(res, episode);
-  else
-    fail(res, null, 'Episode not found');
 };
 controller.downloadEpisode = function(req, res) {
   var episode;
