@@ -1,5 +1,5 @@
 var fs = require('fs'),
-    tree = require('../data/tree.js'),
+    tree = require('./tree.js'),
     videoExt = [
       'avi',
       'wmv',

@@ -1,6 +1,6 @@
 var fs = require('fs'),
     diskspace = require('diskspace'),
-    tree = require('../data/tree.js'),
+    tree = require('./tree.js'),
     classify = require('../controllers/classify.js'),
     controller = {};
 

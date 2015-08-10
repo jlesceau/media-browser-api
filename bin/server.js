@@ -3,7 +3,7 @@ var express = require('express'),
     config = require('../conf/config.json'),
     routes = require('../controllers/routes.js'),
     controller = require('../controllers/controller.js'),
-    tree = require('../data/tree.js'),
+    tree = require('../controllers/tree.js'),
     watcher,
     server;
 
