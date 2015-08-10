@@ -7,7 +7,6 @@ module.exports = function(server) {
 
   // Series
   server.get('/series', controller.getSeries);
-  server.get('/series/:serie_id/:season_id', controller.getSeason);
   server.get(
     '/series/:serie_id/:season_id/:episode_id/:file_id',
     controller.downloadEpisode
@@ -19,7 +18,6 @@ module.exports = function(server) {
 
   // Movies
   server.get('/movies', controller.getMovies);
-  server.get('/movies/:movie_id', controller.getMovie);
   server.get('/movies/:movie_id/dl', controller.downloadMovie);
   server.get('/movies/:movie_id/stream', controller.streamMovie);
 };

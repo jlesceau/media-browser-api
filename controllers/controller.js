@@ -67,21 +67,6 @@ controller.getSeries = function(req, res) {
     })
   );
 };
-controller.getSeason = function(req, res) {
-  var season;
-
-  if ((
-    season = tree.get(
-      'series',
-      { title: req.params.serie_id },
-      'seasons',
-      { number: parseInt(req.params.season_id) }
-    )
-  ))
-    success(res, season);
-  else
-    fail(res, null, 'Season not found');
-};
 controller.downloadEpisode = function(req, res) {
   var episode;
 
@@ -129,14 +114,6 @@ controller.streamEpisode = function (req, res) {
 // Movies
 controller.getMovies = function(req, res) {
   success(res, tree.get('movies'));
-};
-controller.getMovie = function(req, res) {
-  var movie;
-
-  if ((movie = tree.get('movies', { title: req.params.movie_id })))
-    success(res, movie);
-  else
-    fail(res, null, 'Movie not found');
 };
 controller.downloadMovie = function(req, res) {
   var movie;
