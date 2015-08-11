@@ -8,12 +8,11 @@ var express = require('express'),
     server;
 
 // Init the data tree
-tree.set(
-  'topDirectory',
-  config.directory.match(/\/$/) ?
-    config.directory :
-    config.directory + '/'
-);
+config.directory = config.directory.match(/\/$/) ?
+  config.directory :
+  config.directory + '/';
+
+tree.set('topDirectory', config.directory);
 tree.commit();
 controller.fillTree();
 
@@ -34,7 +33,7 @@ watcher
 
 server = express();
 
-routes(server);
+routes(server, config['client-ip-allowed']);
 
 server.listen(config.port, function() {
   console.log('Listening on port ' + config.port);

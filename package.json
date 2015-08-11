@@ -9,6 +9,7 @@
   "dependencies": {
     "baobab": "^0.4.3",
     "chokidar": "^1.0.4",
+    "cors": "^2.7.1",
     "diskspace": "^0.1.7",
     "express": "^4.12.3"
   },

@@ -1,8 +1,15 @@
 var express = require('express'),
     controller = require('./controller.js'),
+    cors = require('cors'),
     fs = require('fs');
 
-module.exports = function(server) {
+module.exports = function(server, whitelist) {
+  server.use(cors({
+    origin: function(origin, callback) {
+      callback(null, whitelist.indexOf(origin) !== -1);
+    }
+  }));
+
   server.get('/disk', controller.getDisk);
 
   // Series
