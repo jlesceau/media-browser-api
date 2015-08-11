@@ -55,17 +55,7 @@ controller.fillTree = function() {
 
 // Series
 controller.getSeries = function(req, res) {
-  success(
-    res,
-    tree.get('series').map(function(serie) {
-      return {
-        title: serie.title,
-        seasons: serie.seasons.map(function(season) {
-          return season.number;
-        })
-      };
-    })
-  );
+  success(res, tree.get('series'));
 };
 controller.downloadEpisode = function(req, res) {
   var episode;
