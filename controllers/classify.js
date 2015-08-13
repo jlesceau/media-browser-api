@@ -49,7 +49,8 @@ function matchEpisode(path, parent) {
       episode.size = size(episode.pathToVideo);
       episode.extension = /.*\.([^.]+)$/.exec(episode.pathToVideo)[1];
       episode.definition = findDefinition(episode.pathToVideo);
-      episode.codec = findCodec(episode.pathToVideo);
+      episode.videoCodec = findVideoCodec(episode.pathToVideo);
+      episode.audioCodec = findAudioCodec(episode.pathToVideo);
     }
   }
 
@@ -91,7 +92,8 @@ function isMovie(path) {
       title: cleanTitle(match[1]),
       year: parseInt(match[2]),
       rip: match[3],
-      codec: findCodec(path),
+      videoCodec: findVideoCodec(path),
+      audioCodec: findAudioCodec(path),
       definition: findDefinition(path),
       pathToVideo: pathToVideo,
       extension: /.*\.([^.]+)$/.exec(pathToVideo)[1],
@@ -152,7 +154,7 @@ function findDefinition(path) {
     return 'sd';
 }
 
-function findCodec(path) {
+function findVideoCodec(path) {
   if (path.match(/xvid/i))
     return 'XviD';
   else if (path.match(/(x264|h264)/i))
@@ -161,6 +163,14 @@ function findCodec(path) {
     return 'x265';
   else
     return 'Unknown';
+}
+
+function findAudioCodec(path) {
+  if (path.match(/ac3/i))
+    return 'AC3';
+  else if (path.match(/DTS/i))
+    return 'DTS';
+  else 'mp3';
 }
 
 module.exports = function(path) {
