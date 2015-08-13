@@ -118,12 +118,7 @@ function cleanTitle(title) {
   return title
     .replace(/[\.|_]/g, ' ')
     .trim()
-    .toLowerCase()
-    .split(' ')
-    .map(function(w) {
-      return w.charAt(0).toUpperCase() + w.substr(1);
-    })
-    .join(' ');
+    .toLowerCase();
 }
 
 function findVideo(path) {
