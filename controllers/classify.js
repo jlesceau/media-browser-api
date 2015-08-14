@@ -165,7 +165,8 @@ function findAudioCodec(path) {
     return 'AC3';
   else if (path.match(/DTS/i))
     return 'DTS';
-  else 'mp3';
+  else
+    return 'mp3';
 }
 
 module.exports = function(path) {
@@ -200,7 +201,8 @@ module.exports = function(path) {
               size: serie.size,
               definition: serie.definition,
               extension: serie.extension,
-              codec: serie.codec
+              videoCodec: serie.videoCodec,
+              audioCodec: serie.audioCodec
             });
           }
           // New episode
@@ -213,7 +215,8 @@ module.exports = function(path) {
                 size: serie.size,
                 definition: serie.definition,
                 extension: serie.extension,
-                codec: serie.codec
+                videoCodec: serie.videoCodec,
+                audioCodec: serie.audioCodec
               }]
             });
           }
@@ -230,7 +233,8 @@ module.exports = function(path) {
                 size: serie.size,
                 definition: serie.definition,
                 extension: serie.extension,
-                codec: serie.codec
+                videoCodec: serie.videoCodec,
+                audioCodec: serie.audioCodec
               }]
             }]
           });
@@ -250,7 +254,8 @@ module.exports = function(path) {
                 size: serie.size,
                 definition: serie.definition,
                 extension: serie.extension,
-                codec: serie.codec
+                videoCodec: serie.videoCodec,
+                audioCodec: serie.audioCodec
               }]
             }]
           }]
